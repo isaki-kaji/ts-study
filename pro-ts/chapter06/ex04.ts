@@ -1,10 +1,12 @@
+export {};
+
 type LHuman = {
   type: 'human';
   name: string;
   age: number;
 };
 
-function setAge(human: LHuman, age: Human['age']) {
+function setAge(human: LHuman, age: LHuman['age']) {
   return {
     ...human,
     age,
