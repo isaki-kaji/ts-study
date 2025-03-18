@@ -1,5 +1,3 @@
-export {};
-
 const main = (input: string) => {
   console.log(
     input

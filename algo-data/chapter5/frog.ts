@@ -21,4 +21,8 @@ function frog(input: string) {
   console.log(dp[n - 1]);
 }
 
-frog(require('fs').readFileSync('/dev/stdin', 'utf8'));
+// frog(require('fs').readFileSync('/dev/stdin', 'utf8'));
+frog(`
+4
+10 30 40 20
+`);
