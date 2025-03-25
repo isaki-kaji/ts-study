@@ -25,30 +25,17 @@ type Plays = {
 
 function statement(invoice: Invoice, plays: Plays) {
   let totalAmount = 0;
-  let volumeCredits = 0;
   let result = `Statement for ${invoice.customer}\n`;
-  const format = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format;
-
   for (let perf of invoice.performances) {
-    let thisAmount = amountFor(perf);
-
-    // ボリューム特典のポイントを加算
-    volumeCredits += Math.max(perf.audience - 30, 0);
-    // 喜劇のときは10人につき、さらにポイントを加算
-    if ('comedy' === playFor(perf).type)
-      volumeCredits += Math.floor(perf.audience / 5);
     // 注文の内訳を出力
-    result += `  ${playFor(perf).name}: ${format(thisAmount / 100)} (${
+    result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${
       perf.audience
     } seats)\n`;
-    totalAmount += thisAmount;
+    totalAmount += amountFor(perf);
   }
-  result += `Amount owed is ${format(totalAmount / 100)}\n`;
-  result += `You earned ${volumeCredits} credits\n`;
+
+  result += `Amount owed is ${usd(totalAmount)}\n`;
+  result += `You earned ${totalVolumeCredits()} credits\n`;
   return result;
 
   function playFor(perf: Performance): Play {
@@ -75,5 +62,32 @@ function statement(invoice: Invoice, plays: Plays) {
         throw new Error(`unknown type: ${playFor(perf).type}`);
     }
     return result;
+  }
+
+  function volumeCreditsFor(perf: Performance): number {
+    let volumeCredits = 0;
+    volumeCredits += Math.max(perf.audience - 30, 0);
+
+    if (playFor(perf).type === 'comedy') {
+      volumeCredits += Math.floor(perf.audience / 5);
+    }
+
+    return volumeCredits;
+  }
+
+  function totalVolumeCredits() {
+    let volumeCredits = 0;
+    for (const perf of invoice.performances) {
+      volumeCredits += volumeCreditsFor(perf);
+    }
+    return volumeCredits;
+  }
+
+  function usd(num: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    }).format(num / 100);
   }
 }
