@@ -1,4 +1,4 @@
-import { Invoice, Play, Plays, Performance } from './performance';
+import { Invoice, Play, Plays, Performance } from './statement';
 
 type Data = {
   customer: string;
