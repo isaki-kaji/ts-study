@@ -8,6 +8,7 @@ type Data = {
 };
 
 type RichPerformance = Performance & {
+  play: Play;
   amount?: number;
   volumeCredits?: number;
 };
@@ -24,19 +25,21 @@ export default function createStatementData(
   return statementData;
 
   function enrichPerformance(perf: Performance): RichPerformance {
-    const result: RichPerformance = Object.assign({}, perf);
-    result.play = playFor(result);
-    result.amount = result.volumeCredits = volumeCreditsFor(result);
-    return result;
+    return {
+      ...perf,
+      play: playFor(perf),
+      amount: amountFor(perf),
+      volumeCredits: volumeCreditsFor(perf),
+    };
   }
 
   function playFor(perf: Performance): Play {
-    return perf.play;
+    return plays[perf.playID];
   }
 
   function amountFor(perf: Performance): number {
     let result = 0;
-    switch (perf.play.type) {
+    switch (playFor(perf).type) {
       case 'tragedy':
         result = 40000;
         if (perf.audience > 30) {
@@ -51,7 +54,7 @@ export default function createStatementData(
         result += 300 * perf.audience;
         break;
       default:
-        throw new Error(`unknown type: ${perf.play.type}`);
+        throw new Error(`unknown type: ${playFor(perf).type}`);
     }
     return result;
   }
@@ -60,7 +63,7 @@ export default function createStatementData(
     let volumeCredits = 0;
     volumeCredits += Math.max(perf.audience - 30, 0);
 
-    if (perf.play.type === 'comedy') {
+    if (playFor(perf).type === 'comedy') {
       volumeCredits += Math.floor(perf.audience / 5);
     }
 
