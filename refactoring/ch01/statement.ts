@@ -1,4 +1,4 @@
-import createStatementData from './createStatementData';
+import createStatementData, { Data } from './createStatementData';
 
 export type Invoice = {
   customer: string;
@@ -27,7 +27,7 @@ function statement(invoice: Invoice, plays: Plays) {
   return renderPlainText(createStatementData(invoice, plays));
 }
 
-function renderPlainText(data: any): string {
+function renderPlainText(data: Data): string {
   let result = `Statement for ${data.customer}\n`;
   for (let perf of data.performances) {
     result += `${perf.play.name}: ${usd(perf.amount)} (${
@@ -43,7 +43,7 @@ function htmlStatement(invoice: Invoice, plays: Plays) {
   return renderHtml(createStatementData(invoice, plays));
 }
 
-function renderHtml(data: any): string {
+function renderHtml(data: Data): string {
   let result = `<h1>Statement for ${data.customer}</h1>\n`;
   result += '<table>\n';
   result += '<tr><th>play</th><th>seats</th><th>cost</th></tr>';

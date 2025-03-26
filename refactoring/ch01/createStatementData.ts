@@ -1,16 +1,16 @@
 import { Invoice, Play, Plays, Performance } from './statement';
 
-type Data = {
+export type Data = {
   customer: string;
-  performances: Performance[];
+  performances: RichPerformance[];
   totalAmount: number;
   totalVolumeCredits: number;
 };
 
 type RichPerformance = Performance & {
   play: Play;
-  amount?: number;
-  volumeCredits?: number;
+  amount: number;
+  volumeCredits: number;
 };
 
 export default function createStatementData(
@@ -25,49 +25,17 @@ export default function createStatementData(
   return statementData;
 
   function enrichPerformance(perf: Performance): RichPerformance {
+    const calculator = createPerformanceCalculator(perf, playFor(perf));
     return {
       ...perf,
-      play: playFor(perf),
-      amount: amountFor(perf),
-      volumeCredits: volumeCreditsFor(perf),
+      play: calculator.play,
+      amount: calculator.amount,
+      volumeCredits: calculator.volumeCredits,
     };
   }
 
   function playFor(perf: Performance): Play {
     return plays[perf.playID];
-  }
-
-  function amountFor(perf: Performance): number {
-    let result = 0;
-    switch (playFor(perf).type) {
-      case 'tragedy':
-        result = 40000;
-        if (perf.audience > 30) {
-          result += 1000 * (perf.audience - 30);
-        }
-        break;
-      case 'comedy':
-        result = 30000;
-        if (perf.audience > 20) {
-          result += 10000 + 500 * (perf.audience - 20);
-        }
-        result += 300 * perf.audience;
-        break;
-      default:
-        throw new Error(`unknown type: ${playFor(perf).type}`);
-    }
-    return result;
-  }
-
-  function volumeCreditsFor(perf: Performance): number {
-    let volumeCredits = 0;
-    volumeCredits += Math.max(perf.audience - 30, 0);
-
-    if (playFor(perf).type === 'comedy') {
-      volumeCredits += Math.floor(perf.audience / 5);
-    }
-
-    return volumeCredits;
   }
 
   function totalAmount(data: any): number {
@@ -76,5 +44,62 @@ export default function createStatementData(
 
   function totalVolumeCredits(data: any) {
     return data.perfomances.reduce((total, p) => total + p.amount, 0);
+  }
+}
+
+function createPerformanceCalculator(
+  performance: Performance,
+  play: Play
+): PerformanceCalculator {
+  switch (play.type) {
+    case 'tragedy':
+      return new TragedyCalculator(performance, play);
+    case 'comedy':
+      return new ComedyCalculator(performance, play);
+    default:
+      throw new Error();
+  }
+}
+
+abstract class PerformanceCalculator {
+  constructor(
+    protected readonly performance: Performance,
+    readonly play: Play
+  ) {}
+
+  get amount(): number {
+    throw new Error();
+  }
+
+  get volumeCredits(): number {
+    let result = 0;
+    result += Math.max(this.performance.audience - 30, 0);
+
+    if (this.play.type === 'comedy') {
+      result += Math.floor(this.performance.audience / 5);
+    }
+
+    return result;
+  }
+}
+
+class TragedyCalculator extends PerformanceCalculator {
+  get amount(): number {
+    let result = 40000;
+    if (this.performance.audience > 30) {
+      result += 1000 * (this.performance.audience - 30);
+    }
+    return result;
+  }
+}
+
+class ComedyCalculator extends PerformanceCalculator {
+  get amount(): number {
+    let result = 30000;
+    if (this.performance.audience) {
+      result += 10000 + 500 * (this.performance.audience - 20);
+    }
+    result += 300 * this.performance.audience;
+    return result;
   }
 }
