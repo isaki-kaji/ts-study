@@ -35,7 +35,10 @@ function calcPriceData(product: Product, quantity: number): PriceData {
   return { basePrice, quantity, discount };
 }
 
-function applyShipping(priceData: any, shippingMethod: ShippingMethod): number {
+function applyShipping(
+  priceData: PriceData,
+  shippingMethod: ShippingMethod
+): number {
   const shippingPerCase =
     priceData.basePrice > shippingMethod.discountThreshold
       ? shippingMethod.discountFee
