@@ -10,23 +10,37 @@ type ShippingMethod = {
   feePerCase: number;
 };
 
+type PriceData = {
+  basePrice: number;
+  quantity: number;
+  discount: number;
+};
+
 function priceOrder(
   product: Product,
   quantity: number,
   shippingMethod: ShippingMethod
 ): number {
+  const priceData = calcPriceData(product, quantity);
+  return applyShipping(priceData, shippingMethod);
+}
+
+function calcPriceData(product: Product, quantity: number): PriceData {
   const basePrice = product.basePrice * quantity;
-  const disccount =
+  const discount =
     Math.max(quantity - product.discountThreshold, 0) *
     product.basePrice *
     product.discountRate;
 
+  return { basePrice, quantity, discount };
+}
+
+function applyShipping(priceData: any, shippingMethod: ShippingMethod): number {
   const shippingPerCase =
-    basePrice > shippingMethod.discountThreshold
+    priceData.basePrice > shippingMethod.discountThreshold
       ? shippingMethod.discountFee
       : shippingMethod.feePerCase;
 
-  const shippingCost = quantity * shippingPerCase;
-  const price = basePrice - disccount + shippingCost;
-  return price;
+  const shippingCost = priceData.quantity * shippingPerCase;
+  return priceData.basePrice - priceData.discount + shippingCost;
 }
