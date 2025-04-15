@@ -11,6 +11,8 @@ describe('Dollar Test', () => {
   test('equals', () => {
     expect(new Dollar(5).equals(new Dollar(5))).toBe(true);
     expect(new Dollar(5).equals(new Dollar(6))).toBe(false);
+    expect(new Franc(5).equals(new Franc(6))).toBe(false);
+    expect(new Franc(5).equals(new Franc(6))).toBe(false);
   });
 
   test('franc multiplication', () => {
