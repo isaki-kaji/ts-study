@@ -1,25 +1,30 @@
-import { Dollar } from './dollar';
-import { Franc } from './franc';
-
 export class Money {
-  constructor(private readonly _amount: number) {}
+  constructor(
+    private readonly _amount: number,
+    private readonly _currency: string
+  ) {}
 
   get amount(): number {
     return this._amount;
   }
 
+  get currency(): string {
+    return this._currency;
+  }
+
+  public times(multiplier: number): Money {
+    return new Money(this.amount * multiplier, this.currency);
+  }
+
   public equals(money: Money): boolean {
-    return (
-      this.amount === money.amount &&
-      money.constructor.name === this.constructor.name
-    );
+    return this.amount === money.amount && this.currency === money.currency;
   }
 
-  static dollar(amount: number): Dollar {
-    return new Dollar(amount);
+  static dollar(amount: number): Money {
+    return new Money(amount, 'USD');
   }
 
-  static franc(amount: number): Franc {
-    return new Franc(amount);
+  static franc(amount: number): Money {
+    return new Money(amount, 'CHF');
   }
 }
