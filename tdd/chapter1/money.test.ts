@@ -1,4 +1,6 @@
+import { Bank } from './bank';
 import { Money } from './money';
+import { Sum } from './sum';
 
 describe('Dollar Test', () => {
   test('multiplication', () => {
@@ -16,5 +18,31 @@ describe('Dollar Test', () => {
   test('currency', () => {
     expect(Money.dollar(1).currency).toBe('USD');
     expect(Money.franc(1).currency).toBe('CHF');
+  });
+
+  test('addition', () => {
+    const five = Money.dollar(5);
+    const sum = five.plus(five);
+    const bank = new Bank();
+    const reduced: Money = bank.reduce(sum, 'SUD');
+    expect(reduced.equals(Money.dollar(10))).toBe(true);
+  });
+
+  describe('plus', () => {
+    test('should return sum', () => {
+      const five = Money.dollar(5);
+      const result = five.plus(five);
+      const sum = result as Sum;
+      expect(five.equals(sum.augend)).toBe(true);
+      expect(five.equals(sum.addend)).toBe(true);
+    });
+  });
+
+  describe('reduce', () => {
+    test('should ', () => {
+      const bank = new Bank();
+      const result = bank.reduce(Money.dollar(1), 'USD');
+      expect(result.equals(Money.dollar(1))).toBe(true);
+    });
   });
 });
