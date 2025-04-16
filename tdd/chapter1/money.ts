@@ -1,4 +1,6 @@
+import { Bank } from './bank';
 import { Expression } from './expression';
+import { Sum } from './sum';
 
 export class Money implements Expression {
   constructor(
@@ -19,15 +21,16 @@ export class Money implements Expression {
   }
 
   public plus(append: Money): Expression {
-    return new Money(this.amount + append.amount, this.currency);
+    return new Sum(this, append);
   }
 
   public equals(money: Money): boolean {
     return this.amount === money.amount && this.currency === money.currency;
   }
 
-  public reduce(to: string): Money {
-    return this;
+  public reduce(bank: Bank, to: string): Money {
+    const rate = bank.rate(this.currency, to);
+    return new Money(this.amount / rate, to);
   }
 
   static dollar(amount: number): Money {

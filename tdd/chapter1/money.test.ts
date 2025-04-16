@@ -24,7 +24,7 @@ describe('Dollar Test', () => {
     const five = Money.dollar(5);
     const sum = five.plus(five);
     const bank = new Bank();
-    const reduced: Money = bank.reduce(sum, 'SUD');
+    const reduced: Money = bank.reduce(sum, 'USD');
     expect(reduced.equals(Money.dollar(10))).toBe(true);
   });
 
@@ -42,6 +42,16 @@ describe('Dollar Test', () => {
     test('should ', () => {
       const bank = new Bank();
       const result = bank.reduce(Money.dollar(1), 'USD');
+      expect(result.equals(Money.dollar(1))).toBe(true);
+    });
+  });
+
+  describe('reduce money different currency', () => {
+    test('should be equal ', () => {
+      const bank = new Bank();
+      bank.addRate('CHF', 'USD', 2);
+      const result = bank.reduce(Money.franc(2), 'USD');
+      console.log(result);
       expect(result.equals(Money.dollar(1))).toBe(true);
     });
   });
